@@ -1,0 +1,25 @@
+services:
+  database:
+    image: postgres:16-alpine
+    hostname: database
+    restart: always
+    volumes:
+      - spacebar_db:/var/lib/postresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spacebar"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    env_file: .env
+
+  server:
+    build: .
+    ports:
+      - "127.0.0.1:3001:3001"
+    env_file: .env
+    depends_on:
+      database:
+        condition: service_healthy
+
+volumes:
+  spacebar_db:
